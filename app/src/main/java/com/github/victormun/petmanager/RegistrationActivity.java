@@ -2,12 +2,14 @@ package com.github.victormun.petmanager;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Spinner;
@@ -34,6 +36,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RegistrationActivity extends AppCompatActivity {
+
+    // Bundle constants
+    public static final String BUNDLE_KEY = "pet";
+    public static final String IMAGE_KEY = "image";
+    public static final String NAME_KEY = "name";
+    public static final String TYPE_KEY = "type";
+    public static final String BREED_KEY = "breed";
+    public static final String BIRTHDATE_KEY = "birthdate";
+
 
     // Calendar constants
     private static final Calendar CALENDAR = Calendar.getInstance();
@@ -63,6 +74,7 @@ public class RegistrationActivity extends AppCompatActivity {
     @BindView(R.id.register_register_pet_button)
     FloatingActionButton petRegisterButton;
     private Date mChosenDate;
+    private Uri petImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +99,23 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkIfFieldsComply()) {
-                    Toast.makeText(RegistrationActivity.this, "All correct!", Toast.LENGTH_SHORT).show();
+                    Bundle petBundle = new Bundle();
+                    petBundle.putString(IMAGE_KEY, petImageUri.toString());
+                    petBundle.putString(NAME_KEY, petNameEditText.getText().toString());
+                    petBundle.putString(TYPE_KEY, petTypeSpinner.getSelectedItem().toString());
+                    petBundle.putString(BREED_KEY, petBreedEditText.getText().toString());
+                    petBundle.putSerializable(BIRTHDATE_KEY, mChosenDate);
+
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    intent.putExtra(BUNDLE_KEY, petBundle);
+                    startActivity(intent);
                 }
             }
         });
         petImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    checkPermissions();
+                checkPermissions();
             }
         });
     }
@@ -163,17 +184,30 @@ public class RegistrationActivity extends AppCompatActivity {
     private void setRandomPetImage() {
         Random random = new Random();
         int randomNum = random.nextInt(PET_IMAGES_NUMBER) + 1;
+        int resourceId = 0;
+        Resources resources = this.getResources();
+
         switch (randomNum) {
             case 1:
                 petImageView.setImageResource(R.drawable.registration_cat);
+                resourceId = R.drawable.registration_cat;
                 break;
             case 2:
                 petImageView.setImageResource(R.drawable.registration_dog_01);
+                resourceId = R.drawable.registration_dog_01;
                 break;
             case 3:
                 petImageView.setImageResource(R.drawable.registration_dog_02);
+                resourceId = R.drawable.registration_dog_02;
                 break;
         }
+
+        petImageUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(resources.getResourcePackageName(resourceId))
+                .appendPath(resources.getResourceTypeName(resourceId))
+                .appendPath(resources.getResourceEntryName(resourceId))
+                .build();
     }
 
     // Permissions
@@ -187,7 +221,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setMessage(getResources().getString(R.string.gallery_permissions_message))
+                builder.setMessage(getResources().getString(R.string.permissions_message))
                         .setTitle(getResources().getString(R.string.permissions_title));
                 builder.setPositiveButton(getResources().getString(R.string.permissions_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -223,7 +257,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     && !(result == PermissionChecker.PERMISSION_GRANTED)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setMessage(getResources().getString(R.string.gallery_permissions_always_message))
+                builder.setMessage(getResources().getString(R.string.permissions_always_message))
                         .setTitle(getResources().getString(R.string.permissions_always_title));
                 builder.setPositiveButton(getResources().getString(R.string.permissions_always_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -246,7 +280,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     }
 
-    private void getImageFromGallery(){
+    private void getImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -257,6 +291,7 @@ public class RegistrationActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == OPEN_DOCUMENT_CODE && resultCode == RESULT_OK) {
             if (resultData != null) {
+                petImageUri = resultData.getData();
                 petImageView.setImageURI(resultData.getData());
             }
         }
