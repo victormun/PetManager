@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">PetManager</string>
+
+    <!--Registration Activity-->
+    <string name="register_edit_button">Edit Button</string>
+    <string name="register_register_your_pet">Register your pet</string>
+    <string name="register_name_title">Name</string>
+    <string name="register_name_hint">Your pet\'s name</string>
+    <string name="register_type_title">Type</string>
+    <string name="register_birthday_title">Birthday</string>
+    <string name="register_birthday">Choose a date</string>
+    <string name="register_breed_title">Breed</string>
+    <string name="register_breed_hint">Your pet\'s breed</string>
+    <string-array name="register_type_array">
+        <item>Dog</item>
+        <item>Cat</item>
+    </string-array>
+
+
+    <!--Permissions-->
+    <string name="permissions_title">We need your permission!</string>
+    <string name="gallery_permissions_message">In order to set the image of your favorite friend in your
+        pet\'s profile, we need access to your phone\'s storage.</string>
+    <string name="permissions_ok">Okay!</string>
+    <string name="permissions_deny">No, thanks</string>
+    <string name="permissions_always_title">We are not allowed to access your phone\'s storage!</string>
+    <string name="gallery_permissions_always_message">It appears that you have chosen to deny us access
+        to your storage. Because of that, we are unable to access your phone gallery and find an
+        awesome picture of your pet.\n
+        You can revert this, by accessing your permission settings.</string>
+    <string name="permissions_always_ok">Go to Settings!</string>
 </resources>
