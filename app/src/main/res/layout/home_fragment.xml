@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:id="@+id/home_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:padding="@dimen/material_padding_dimension"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Leia" />
+
+        <com.mikhaellopez.circularimageview.CircularImageView
+            android:id="@+id/home_image"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="centerCrop"
+            app:civ_shadow_radius="10"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/home_title"
+            tools:src="@drawable/registration_cat" />
+
+        <TextView
+            android:id="@+id/home_information_title"
+            style="@style/register_title"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:text="Information"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/register_birthday_entry" />
+
+        <TextView
+            android:id="@+id/home_information_birthday_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Birthday:"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_title" />
+
+        <TextView
+            android:id="@+id/home_information_birthday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_title"
+            tools:text="24/05/2015" />
+
+        <TextView
+            android:id="@+id/home_information_type_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Type:"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_birthday_title" />
+
+        <TextView
+            android:id="@+id/home_information_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            tools:text="Dog"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_birthday_title" />
+
+        <TextView
+            android:id="@+id/home_information_breed_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Breed:"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_type_title" />
+
+        <TextView
+            android:id="@+id/home_information_breed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_type_title"
+            tools:text="Golden Retriever" />
+
+        <TextView
+            android:id="@+id/home_health_title"
+            style="@style/register_title"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Health"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_information_breed_title" />
+
+        <TextView
+            android:id="@+id/home_upcoming_events_title"
+            style="@style/register_title"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Upcoming Events"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_health_title" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/register_birthday_entry"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:text="Edit pet"
+            app:cornerRadius="32dp"
+            app:icon="@drawable/ic_mode_edit_black_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_image" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.26" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
+
