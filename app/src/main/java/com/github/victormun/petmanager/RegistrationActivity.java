@@ -9,12 +9,13 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.github.victormun.petmanager.database.AppDatabase;
+import com.github.victormun.petmanager.database.PetEntry;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -23,27 +24,31 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    // Bundle constants
-    public static final String BUNDLE_KEY = "pet";
-    public static final String IMAGE_KEY = "image";
-    public static final String NAME_KEY = "name";
-    public static final String TYPE_KEY = "type";
-    public static final String BREED_KEY = "breed";
-    public static final String BIRTHDATE_KEY = "birthdate";
+//    // Bundle constants
+//    public static final String BUNDLE_KEY = "pet";
+//    public static final String IMAGE_KEY = "image";
+//    public static final String NAME_KEY = "name";
+//    public static final String TYPE_KEY = "type";
+//    public static final String BREED_KEY = "breed";
+//    public static final String BIRTHDATE_KEY = "birthdate";
 
 
     // Calendar constants
@@ -76,15 +81,32 @@ public class RegistrationActivity extends AppCompatActivity {
     private Date mChosenDate;
     private Uri petImageUri;
 
+    private AppDatabase mDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
-        ButterKnife.bind(this);
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        setupViewModel();
 
-        setRandomPetImage();
-        initListeners();
+    }
 
+    private void setupViewModel() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getPets().observe(this, new Observer<List<PetEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<PetEntry> petEntries) {
+                if(!(petEntries ==null) && petEntries.size()>0){
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    setContentView(R.layout.activity_registration);
+                    ButterKnife.bind(RegistrationActivity.this);
+                    setRandomPetImage();
+                    initListeners();
+                }
+            }
+        });
     }
 
     // Initializes all the listeners in the activity
@@ -99,15 +121,29 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkIfFieldsComply()) {
-                    Bundle petBundle = new Bundle();
-                    petBundle.putString(IMAGE_KEY, petImageUri.toString());
-                    petBundle.putString(NAME_KEY, petNameEditText.getText().toString());
-                    petBundle.putString(TYPE_KEY, petTypeSpinner.getSelectedItem().toString());
-                    petBundle.putString(BREED_KEY, petBreedEditText.getText().toString());
-                    petBundle.putSerializable(BIRTHDATE_KEY, mChosenDate);
+                    String name = petNameEditText.getText().toString();
+                    String breed = petBreedEditText.getText().toString();
+                    String type = petTypeSpinner.getSelectedItem().toString();
+                    String url = petImageUri.toString();
+                    Date date = mChosenDate;
 
+                    final PetEntry pet = new PetEntry(name, breed, type, url, date);
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDb.petDao().insertPet(pet);
+                            finish();
+                        }
+                    });
+
+//                    Bundle petBundle = new Bundle();
+//                    petBundle.putString(IMAGE_KEY, name);
+//                    petBundle.putString(NAME_KEY, breed);
+//                    petBundle.putString(TYPE_KEY, type);
+//                    petBundle.putString(BREED_KEY, url);
+//                    petBundle.putSerializable(BIRTHDATE_KEY, mChosenDate);
+//                    intent.putExtra(BUNDLE_KEY, petBundle);
                     Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-                    intent.putExtra(BUNDLE_KEY, petBundle);
                     startActivity(intent);
                 }
             }
