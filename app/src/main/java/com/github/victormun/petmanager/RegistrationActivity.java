@@ -2,10 +2,11 @@ package com.github.victormun.petmanager;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.github.victormun.petmanager.database.AppDatabase;
+import com.github.victormun.petmanager.database.PetEntry;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -21,15 +24,19 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -63,16 +70,34 @@ public class RegistrationActivity extends AppCompatActivity {
     @BindView(R.id.register_register_pet_button)
     FloatingActionButton petRegisterButton;
     private Date mChosenDate;
+    private Uri petImageUri;
+
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
-        ButterKnife.bind(this);
+        mDb = AppDatabase.getInstance(getApplicationContext());
+        setupViewModel();
 
-        setRandomPetImage();
-        initListeners();
+    }
 
+    private void setupViewModel() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getPets().observe(this, new Observer<List<PetEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<PetEntry> petEntries) {
+                if(!(petEntries ==null) && petEntries.size()>0){
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    setContentView(R.layout.activity_registration);
+                    ButterKnife.bind(RegistrationActivity.this);
+                    setRandomPetImage();
+                    initListeners();
+                }
+            }
+        });
     }
 
     // Initializes all the listeners in the activity
@@ -87,14 +112,30 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkIfFieldsComply()) {
-                    Toast.makeText(RegistrationActivity.this, "All correct!", Toast.LENGTH_SHORT).show();
+                    String name = petNameEditText.getText().toString();
+                    String breed = petBreedEditText.getText().toString();
+                    String type = petTypeSpinner.getSelectedItem().toString();
+                    String url = petImageUri.toString();
+                    Date date = mChosenDate;
+
+                    final PetEntry pet = new PetEntry(name, breed, type, url, date);
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDb.petDao().insertPet(pet);
+                            finish();
+                        }
+                    });
+
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
             }
         });
         petImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    checkPermissions();
+                checkPermissions();
             }
         });
     }
@@ -163,17 +204,30 @@ public class RegistrationActivity extends AppCompatActivity {
     private void setRandomPetImage() {
         Random random = new Random();
         int randomNum = random.nextInt(PET_IMAGES_NUMBER) + 1;
+        int resourceId = 0;
+        Resources resources = this.getResources();
+
         switch (randomNum) {
             case 1:
                 petImageView.setImageResource(R.drawable.registration_cat);
+                resourceId = R.drawable.registration_cat;
                 break;
             case 2:
                 petImageView.setImageResource(R.drawable.registration_dog_01);
+                resourceId = R.drawable.registration_dog_01;
                 break;
             case 3:
                 petImageView.setImageResource(R.drawable.registration_dog_02);
+                resourceId = R.drawable.registration_dog_02;
                 break;
         }
+
+        petImageUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(resources.getResourcePackageName(resourceId))
+                .appendPath(resources.getResourceTypeName(resourceId))
+                .appendPath(resources.getResourceEntryName(resourceId))
+                .build();
     }
 
     // Permissions
@@ -187,7 +241,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setMessage(getResources().getString(R.string.gallery_permissions_message))
+                builder.setMessage(getResources().getString(R.string.permissions_message))
                         .setTitle(getResources().getString(R.string.permissions_title));
                 builder.setPositiveButton(getResources().getString(R.string.permissions_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -223,7 +277,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     && !(result == PermissionChecker.PERMISSION_GRANTED)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setMessage(getResources().getString(R.string.gallery_permissions_always_message))
+                builder.setMessage(getResources().getString(R.string.permissions_always_message))
                         .setTitle(getResources().getString(R.string.permissions_always_title));
                 builder.setPositiveButton(getResources().getString(R.string.permissions_always_ok), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -246,7 +300,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     }
 
-    private void getImageFromGallery(){
+    private void getImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -257,6 +311,7 @@ public class RegistrationActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == OPEN_DOCUMENT_CODE && resultCode == RESULT_OK) {
             if (resultData != null) {
+                petImageUri = resultData.getData();
                 petImageView.setImageURI(resultData.getData());
             }
         }
