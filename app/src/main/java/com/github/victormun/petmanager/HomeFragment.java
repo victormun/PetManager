@@ -26,12 +26,6 @@ import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-//import static com.github.victormun.petmanager.RegistrationActivity.BIRTHDATE_KEY;
-//import static com.github.victormun.petmanager.RegistrationActivity.BREED_KEY;
-//import static com.github.victormun.petmanager.RegistrationActivity.IMAGE_KEY;
-//import static com.github.victormun.petmanager.RegistrationActivity.NAME_KEY;
-//import static com.github.victormun.petmanager.RegistrationActivity.TYPE_KEY;
-
 public class HomeFragment extends Fragment {
 
     private static final String TAG = HomeFragment.class.getSimpleName();
@@ -68,18 +62,6 @@ public class HomeFragment extends Fragment {
         rootView = inflater.inflate(R.layout.home_fragment, container, false);
         ButterKnife.bind(this, rootView);
         mDb = AppDatabase.getInstance(rootView.getContext().getApplicationContext());
-
-//        Bundle incomingBundle = getArguments();
-//        if (incomingBundle!=null){
-//            petImageUri = Uri.parse(incomingBundle.getString(IMAGE_KEY));
-//            petName = incomingBundle.getString(NAME_KEY);
-//            petType = incomingBundle.getString(TYPE_KEY);
-//            petBreed = incomingBundle.getString(BREED_KEY);
-//            petBirthday = (Date) incomingBundle.getSerializable(BIRTHDATE_KEY);
-//
-//            initViews();
-//        }
-
         setupViewModel();
         return rootView;
     }

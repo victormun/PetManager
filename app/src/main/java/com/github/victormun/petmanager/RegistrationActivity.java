@@ -42,15 +42,6 @@ import butterknife.ButterKnife;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-//    // Bundle constants
-//    public static final String BUNDLE_KEY = "pet";
-//    public static final String IMAGE_KEY = "image";
-//    public static final String NAME_KEY = "name";
-//    public static final String TYPE_KEY = "type";
-//    public static final String BREED_KEY = "breed";
-//    public static final String BIRTHDATE_KEY = "birthdate";
-
-
     // Calendar constants
     private static final Calendar CALENDAR = Calendar.getInstance();
     private static final int CURRENT_MONTH = CALENDAR.get(Calendar.MONTH);
@@ -136,13 +127,6 @@ public class RegistrationActivity extends AppCompatActivity {
                         }
                     });
 
-//                    Bundle petBundle = new Bundle();
-//                    petBundle.putString(IMAGE_KEY, name);
-//                    petBundle.putString(NAME_KEY, breed);
-//                    petBundle.putString(TYPE_KEY, type);
-//                    petBundle.putString(BREED_KEY, url);
-//                    petBundle.putSerializable(BIRTHDATE_KEY, mChosenDate);
-//                    intent.putExtra(BUNDLE_KEY, petBundle);
                     Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                     startActivity(intent);
                 }

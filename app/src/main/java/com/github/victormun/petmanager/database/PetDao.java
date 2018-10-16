@@ -11,20 +11,20 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
-public interface TaskDao {
+public interface PetDao {
 
-    @Query("SELECT * FROM task ORDER BY priority")
-    LiveData<List<TaskEntry>> loadAllTasks();
+    @Query("SELECT * FROM pet ORDER BY id")
+    LiveData<List<PetEntry>> loadAllPets();
 
     @Insert
-    void insertTask(TaskEntry taskEntry);
+    void insertPet(PetEntry petEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updateTask(TaskEntry taskEntry);
+    void updatePet(PetEntry petEntry);
 
     @Delete
-    void deleteTask(TaskEntry taskEntry);
+    void deletePet(PetEntry petEntry);
 
-    @Query("SELECT * FROM task WHERE id = :id")
-    LiveData<TaskEntry> loadTaskById(int id);
+    @Query("SELECT * FROM pet WHERE id = :id")
+    LiveData<PetEntry> loadPetById(int id);
 }
