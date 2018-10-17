@@ -33,8 +33,8 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.home_image)
     CircularImageView petImageView;
 
-    @BindView(R.id.home_title)
-    TextView petNameTextView;
+//    @BindView(R.id.home_title)
+//    TextView petNameTextView;
 
     @BindView(R.id.home_information_birthday)
     TextView petBirthdayView;
@@ -92,7 +92,8 @@ public class HomeFragment extends Fragment {
 
     private void initViews() {
         petImageView.setImageURI(petImageUri);
-        petNameTextView.setText(petName);
+        if (getActivity() != null)
+            getActivity().setTitle(petName);
         petTypeView.setText(petType);
         petBreedView.setText(petBreed);
 
